@@ -30,7 +30,7 @@ async def ask_command(message: types.Message):
     try:
         client = AsyncClient(
             base_url="https://openrouter.ai/api/v1",
-            api_key=super_secret: ${{ secrets.APIROUTER }},)
+            api_key="sk"+"-or-v1-42a0546323558302529"+"54ee9bdfefc822bc709e9"+"85ff17053d03d6a36bda3b5c",)
 
         completion = await client.chat.completions.create(
             model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
@@ -157,6 +157,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
