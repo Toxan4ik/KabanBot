@@ -96,7 +96,7 @@ async def cmd_repeat(message: types.Message):
 
 @dp.message(Command("report"))
 async def report_com(message: types.Message):
-    text = message.text.replace("/report ","").replace("/report","")
+    text = message.text.replace("/report@kabantos_bot ","").replace("/report@kabantos_bot","")
     if str(text).replace(" ","")!="":
         Name = text.split()[0]
         await bot.delete_message(message.chat.id, message.message_id)
@@ -157,6 +157,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
