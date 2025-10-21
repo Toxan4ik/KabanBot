@@ -40,10 +40,16 @@ async def ask_command(message: types.Message):
                 "role": "user",
                 "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
                 }])
-        mestime.delete()
+        try:
+            await mestime.delete()
+        except:
+            pass
         await message.reply(completion.choices[0].message.content)
     except Exception as e:
-        mestime.delete()
+        try:
+            await mestime.delete()
+        except:
+            pass
         print("Произошла ошибка: "+str(e))
         await message.reply("Произошла ошибка: "+str(e))
 
@@ -96,11 +102,13 @@ async def cmd_repeat(message: types.Message):
 
 @dp.message(Command("report"))
 async def report_com(message: types.Message):
-    text = str(message.text).replace("/report ","").replace("/report","").replace("/report@kabantos_bot ","").replace("/report@kabantos_bot","")
-    print(text)
+    text = str(message.text).replace("/report ","").replace("/report","")
     if str(text).replace(" ","")!="":
         Name = str(text).split()[0]
-        message.delete()
+        try:
+            await bot.delete_message(message.chat.id, message.message_id)
+        except:
+            pass
         NameAndLastname = ""
         if message.from_user.first_name != None:
             NameAndLastname += str(message.from_user.first_name)+" "
@@ -118,7 +126,10 @@ async def report_com(message: types.Message):
         except:
             await bot.send_message(message.chat.id, text="🛑 Невозможно отправить репорт, т.к у админа нет активного чата с ботом 🛑")
     else:
-        message.delete()
+        try:
+            await bot.delete_message(message.chat.id, message.message_id)
+        except:
+            pass
         await bot.send_message(message.chat.id, text="🛑 Вы не можете отправить пустую жалобу! 🛑")
 
 """""
@@ -158,4 +169,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
