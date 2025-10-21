@@ -23,7 +23,7 @@ spisdays = ["понедельник", "вторник","среда","четве�
 async def ask_command(message: types.Message):
     prompt = message.text.replace("/ask", "").strip()
     if not prompt:
-        await message.reply(message.from_user.first_name+" вы отправили пустое сообщение!")
+        await message.reply(str(message.from_user.first_name)+" вы отправили пустое сообщение!")
         return
 
     mestime = await message.reply("Ожидайте...")
@@ -44,8 +44,8 @@ async def ask_command(message: types.Message):
         await message.reply(completion.choices[0].message.content)
     except Exception as e:
         await mestime.delete()
-        print("Произошла ошибка: "+e)
-        await message.reply("Произошла ошибка: "+e)
+        print("Произошла ошибка: "+str(e))
+        await message.reply("Произошла ошибка: "+str(e))
 
 @dp.message(Command("info"))
 async def info_command(message: types.Message):
@@ -55,19 +55,19 @@ async def info_command(message: types.Message):
 async def dice_command(message: types.Message):
     dice_message = await message.reply_dice(emoji="🎲")
     await asyncio.sleep(1.5)
-    await message.reply(message.from_user.first_name+" вам выпало число: "+dice_message.dice.value)
+    await message.reply(str(message.from_user.first_name)+" вам выпало число: "+str(dice_message.dice.value))
 
 @dp.message(Command("target"))
 async def target_command(message: types.Message):
     target_messages = await message.reply_dice(emoji="🎯")
     await asyncio.sleep(1.5)
-    await message.reply(message.from_user.first_name+" вы попали в число: "+target_messages.dice.value)
+    await message.reply(str(message.from_user.first_name)+" вы попали в число: "+str(target_messages.dice.value))
 
 @dp.message(Command("casino"))
 async def casino_command(message: types.Message):
 	casino_message = await message.reply_dice(emoji="🎰")
 	await asyncio.sleep(1.5)
-	await message.reply("Ваш выигрыш "+message.from_user.first_name+": "+casino_message.dice.value)
+	await message.reply("Ваш выигрыш "+str(message.from_user.first_name)+": "+str(casino_message.dice.value))
 
 @dp.message(Command("criminal"))
 async def criminal_command(message: types.Message):
@@ -78,7 +78,7 @@ async def criminal_command(message: types.Message):
         soup = BeautifulSoup(src, "lxml")
         vibor = random.randint(143, len(soup.find("table").find_all("tr")))
         if "Глава" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "Раздел" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "ЧАСТЬ ОБЩАЯ" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","")  and "Утратила силу" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n",""):
-            await message.reply("👤 "+message.from_user.username+" обвиняется по "+str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")+" 🔗")
+            await message.reply("👤 "+str(message.from_user.username)+" обвиняется по "+str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")+" 🔗")
             break
     
 
@@ -102,12 +102,12 @@ async def report_com(message: types.Message):
         await bot.delete_message(message.chat.id, message.message_id)
         NameAndLastname = ""
         if message.from_user.first_name != None:
-            NameAndLastname += message.from_user.first_name+" "
+            NameAndLastname += str(message.from_user.first_name)+" "
         if message.from_user.last_name != None:
-            NameAndLastname += message.from_user.last_name+" "
-        NameAndLastname += "("+message.from_user.username+")"
+            NameAndLastname += str(message.from_user.last_name)+" "
+        NameAndLastname += "("+str(message.from_user.username)+")"
         text = text.replace(f"{Name} ", "")
-        text = "🛑 РЕПОРТ! 🛑\n\nПользователь: "+NameAndLastname+" c ID: "+message.from_user.id+"\nПожаловался на пользователя "+Name+"\n\nПричина: "+text
+        text = "🛑 РЕПОРТ! 🛑\n\nПользователь: "+str(NameAndLastname)+" c ID: "+str(message.from_user.id)+"\nПожаловался на пользователя "+str(Name)+"\n\nПричина: "+str(text)
         try:
             try:
                 await bot.send_message(1828269322, text=text)  # ЕГОР: 5038019526 #АНТОН: 1828269322
