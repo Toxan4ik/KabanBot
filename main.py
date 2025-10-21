@@ -13,7 +13,7 @@ import requests
 
 import random
 
-bot = Bot(token="7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
+bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
 dp = Dispatcher()
 spisdays = ["понедельник", "вторник","среда","четверг","пятница","суббота","воскресенье"]
 
@@ -155,3 +155,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
