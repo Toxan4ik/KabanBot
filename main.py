@@ -76,7 +76,7 @@ async def criminal_command(message: types.Message):
         soup = BeautifulSoup(src, "lxml")
         vibor = random.randint(143, len(soup.find("table").find_all("tr")))
         if "Глава" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "Раздел" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "ЧАСТЬ ОБЩАЯ" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","")  and "Утратила силу" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n",""):
-            await message.reply(f'👤 {message.from_user.username} обвиняется по {str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")} 🔗')
+            await message.reply(f'{message.from_user.username} обвиняется по {str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ")}')
             break
     
 
@@ -155,5 +155,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
