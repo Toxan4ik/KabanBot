@@ -96,7 +96,7 @@ async def cmd_repeat(message: types.Message):
 
 @dp.message(Command("report"))
 async def report_com(message: types.Message):
-    text = str(message.text).replace("/report ","").replace("/report","")
+    text = str(message.text).replace("/report ","").replace("/report","").replace("/report@kabantos_bot ","").replace("/report@kabantos_bot","")
     print(text)
     if str(text).replace(" ","")!="":
         Name = str(text).split()[0]
@@ -158,3 +158,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
