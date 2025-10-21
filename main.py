@@ -8,7 +8,7 @@ import requests
 
 import random
 
-bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE")
+bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") #7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE
 dp = Dispatcher()
 spisdays = ["понедельник", "вторник","среда","четверг","пятница","суббота","воскресенье"]
 
@@ -89,25 +89,29 @@ async def cmd_repeat(message: types.Message):
 
 @dp.message(Command("report"))
 async def report_com(message: types.Message):
-    text = message.text.replace("/report ","")
-    Name = text.split()[0]
-    await bot.delete_message(message.chat.id, message.message_id)
-    NameAndLastname = ""
-    if message.from_user.first_name != None:
-        NameAndLastname += f"{message.from_user.first_name} "
-    if message.from_user.last_name != None:
-        NameAndLastname += f"{message.from_user.last_name} "
-    NameAndLastname += f"({message.from_user.username})"
-    text = text.replace(f"{Name} ", "")
-    text = f"🛑 РЕПОРТ! 🛑\n\nПользователь: {NameAndLastname} c ID: {message.from_user.id}\nПожаловался на пользователя {Name}\n\nПричина: {text}"
-    try:
+    text = message.text.replace("/report ","").replace("/report","")
+    if str(text).replace(" ","")!="":
+        Name = text.split()[0]
+        await bot.delete_message(message.chat.id, message.message_id)
+        NameAndLastname = ""
+        if message.from_user.first_name != None:
+            NameAndLastname += f"{message.from_user.first_name} "
+        if message.from_user.last_name != None:
+            NameAndLastname += f"{message.from_user.last_name} "
+        NameAndLastname += f"({message.from_user.username})"
+        text = text.replace(f"{Name} ", "")
+        text = f"🛑 РЕПОРТ! 🛑\n\nПользователь: {NameAndLastname} c ID: {message.from_user.id}\nПожаловался на пользователя {Name}\n\nПричина: {text}"
         try:
-            await bot.send_message(1828269322, text=text)  # ЕГОР: 5038019526 #АНТОН: 1828269322
+            try:
+                await bot.send_message(1828269322, text=text)  # ЕГОР: 5038019526 #АНТОН: 1828269322
+            except:
+                pass
+            await bot.send_message(5038019526, text=text) #ЕГОР: 5038019526 #АНТОН: 1828269322
         except:
-            pass
-        await bot.send_message(5038019526, text=text) #ЕГОР: 5038019526 #АНТОН: 1828269322
-    except:
-        await bot.send_message(message.chat.id, text="🛑 Невозможно отправить репорт, т.к у админа нет активного чата с ботом 🛑")
+            await bot.send_message(message.chat.id, text="🛑 Невозможно отправить репорт, т.к у админа нет активного чата с ботом 🛑")
+    else:
+        await bot.delete_message(message.chat.id, message.message_id)
+        await bot.send_message(message.chat.id, text="🛑 Вы не можете отправить пустую жалобу! 🛑")
 
 """""
 @dp.message(Command("myinfo"))
