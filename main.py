@@ -40,10 +40,10 @@ async def ask_command(message: types.Message):
                 "role": "user",
                 "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
                 }])
-        await mestime.delete()
+        mestime.delete()
         await message.reply(completion.choices[0].message.content)
     except Exception as e:
-        await mestime.delete()
+        mestime.delete()
         print("Произошла ошибка: "+str(e))
         await message.reply("Произошла ошибка: "+str(e))
 
@@ -96,10 +96,11 @@ async def cmd_repeat(message: types.Message):
 
 @dp.message(Command("report"))
 async def report_com(message: types.Message):
-    text = message.text.replace("/report@kabantos_bot ","").replace("/report@kabantos_bot","")
+    text = str(message.text).replace("/report ","").replace("/report","")
+    print(text)
     if str(text).replace(" ","")!="":
-        Name = text.split()[0]
-        await bot.delete_message(message.chat.id, message.message_id)
+        Name = str(text).split()[0]
+        message.delete()
         NameAndLastname = ""
         if message.from_user.first_name != None:
             NameAndLastname += str(message.from_user.first_name)+" "
@@ -117,7 +118,7 @@ async def report_com(message: types.Message):
         except:
             await bot.send_message(message.chat.id, text="🛑 Невозможно отправить репорт, т.к у админа нет активного чата с ботом 🛑")
     else:
-        await bot.delete_message(message.chat.id, message.message_id)
+        message.delete()
         await bot.send_message(message.chat.id, text="🛑 Вы не можете отправить пустую жалобу! 🛑")
 
 """""
@@ -157,10 +158,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
-
-
