@@ -2,6 +2,8 @@ from os import system
 
 system("pip install openai")
 system("pip install bs4")
+system("pip install lxml")
+system("pip install asyncio")
 
 import asyncio
 from aiogram import Bot, Dispatcher, types
