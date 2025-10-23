@@ -1,9 +1,10 @@
 from os import system
 
-system("pip install openai")
-system("pip install bs4")
-system("pip install lxml")
-system("pip install asyncio")
+#system("pip install openai")
+#system("pip install bs4")
+#system("pip install lxml")
+#system("pip install asyncio")
+#system("pip install python-Levenshtein")
 
 import asyncio
 from aiogram import Bot, Dispatcher, types
@@ -12,12 +13,45 @@ from openai import AsyncClient
 
 from bs4 import BeautifulSoup
 import requests
+from Levenshtein import ratio
 
+from datetime import timedelta
+import datetime
+
+import time
 import random
 
 bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
 dp = Dispatcher()
-spisdays = ["понедельник", "вторник","среда","четверг","пятница","суббота","воскресенье"]
+blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak"]
+
+@dp.message(lambda message: message.from_user.id)
+async def reestr(message: types.Message):
+    sumbantime = 0
+    text = str(message.text).lower()
+    for i in text.replace("?"," ").replace("!"," ").replace("'"," ").replace('"'," ").replace("."," ").replace(","," ").replace("/"," ").replace("@"," ").replace("$"," ").replace(";"," ").replace("#"," ").split():
+        i = str(i)
+        for i1 in blockSlova:
+            i1 = str(i1)
+            print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
+            if int(round(ratio(i, i1)*100)) > 85:
+                sumbantime+=5
+                text.replace(i," ")
+                break
+    for i in blockSlova:
+        if i in text:
+            sumbantime+=5
+            text.replace(i1," ")
+    if int(sumbantime)>0:
+        await message.reply("бан на "+str(sumbantime)+" мин")
+        now = datetime.datetime.now()
+        ban_until = now + timedelta(minutes=sumbantime)
+        timestamp = int(ban_until.timestamp())
+        await bot.restrict_chat_member(
+            chat_id=message.chat.id,
+            user_id=message.from_user.id,
+            permissions=types.ChatPermissions(),
+            until_date=timestamp)
 
 @dp.message(Command("ask"))
 async def ask_command(message: types.Message):
