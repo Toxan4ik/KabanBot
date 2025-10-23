@@ -19,7 +19,7 @@ from datetime import timedelta
 import datetime
 
 import time
-import random
+import random #-1002252566013
 
 bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
 dp = Dispatcher()
@@ -33,6 +33,7 @@ async def reestr(message: types.Message):
         i = str(i)
         for i1 in blockSlova:
             i1 = str(i1)
+            print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
             if int(round(ratio(i, i1)*100)) > 85:
                 sumbantime+=5
                 text.replace(i," ")
@@ -46,11 +47,14 @@ async def reestr(message: types.Message):
         now = datetime.datetime.now()
         ban_until = now + timedelta(minutes=sumbantime)
         timestamp = int(ban_until.timestamp())
-		await bot.restrict_chat_member(
-			chat_id=message.chat.id,
-			user_id=message.from_user.id,
-			permissions=types.ChatPermissions(),
-			until_date=timestamp)
+        try:
+            await bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                permissions=types.ChatPermissions(),
+                until_date=timestamp)
+        except:
+            pass
 
 @dp.message(Command("ask"))
 async def ask_command(message: types.Message):
@@ -202,8 +206,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
