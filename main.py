@@ -47,14 +47,14 @@ async def reestr(message: types.Message):
         now = datetime.datetime.now()
         ban_until = now + timedelta(minutes=sumbantime)
         timestamp = int(ban_until.timestamp())
-		try:
-	        await bot.restrict_chat_member(
-	            chat_id=message.chat.id,
-	            user_id=message.from_user.id,
-	            permissions=types.ChatPermissions(),
-	            until_date=timestamp)
-		except:
-			pass
+        try:
+            await bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                permissions=types.ChatPermissions(),
+                until_date=timestamp)
+        except:
+            pass
 
 @dp.message(Command("ask"))
 async def ask_command(message: types.Message):
@@ -206,5 +206,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
