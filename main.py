@@ -33,7 +33,6 @@ async def reestr(message: types.Message):
         i = str(i)
         for i1 in blockSlova:
             i1 = str(i1)
-            print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
             if int(round(ratio(i, i1)*100)) > 85:
                 sumbantime+=5
                 text.replace(i," ")
@@ -206,6 +205,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
