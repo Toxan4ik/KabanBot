@@ -18,12 +18,12 @@ from Levenshtein import ratio
 from datetime import timedelta
 import datetime
 
-import time
+import re
 import random #-1002252566013
 
 bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
 dp = Dispatcher()
-blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","кли(и-я)нись"]
+blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis"]
 
 @dp.message(Command("ask"))
 async def ask_command(message: types.Message):
@@ -172,40 +172,53 @@ async def cmd_myinfo(message: types.Message):
 
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
-    sumbantime = 0
-    text = str(message.text).lower()
-    for i in text.replace("?"," ").replace("!"," ").replace("'"," ").replace('"'," ").replace("."," ").replace(","," ").replace("/"," ").replace("@"," ").replace("$"," ").replace(";"," ").replace("#"," ").split():
-        i = str(i)
-        for i1 in blockSlova:
-            i1 = str(i1)
-            print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
-            if int(round(ratio(i, i1)*100)) > 86:
-                sumbantime+=5
-                text.replace(i," ")
-                break
-    for i in blockSlova:
-        if i in text:
-            sumbantime+=5
-            text.replace(i1," ")
-    if int(sumbantime)>0:
-        await message.reply("бан на "+str(sumbantime)+" мин")
-        now = datetime.datetime.now()
-        ban_until = now + timedelta(minutes=sumbantime)
-        timestamp = int(ban_until.timestamp())
-        try:
+    try:
+        if str(message.sticker.file_id) == "CAACAgIAAyEFAAS-sUXhAAICsGj82mZGFkD4z_8DMScm5QmvN_8uAAJ7egACL83ZS5UMSiKceRpVNgQ":
+            sumbantime = 10
+            await message.reply("бан на "+str(sumbantime)+" мин")
+            now = datetime.datetime.now()
+            ban_until = now + timedelta(minutes=sumbantime)
+            timestamp = int(ban_until.timestamp())
             await bot.restrict_chat_member(
-                chat_id=message.chat.id,
-                user_id=message.from_user.id,
-                permissions=types.ChatPermissions(),
-                until_date=timestamp)
-        except:
-            pass
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id,
+                    permissions=types.ChatPermissions(),
+                    until_date=timestamp)
+    except:
+        sumbantime = 0
+        text = str(message.text).lower()
+        text = str(''.join(e for e in text if e.isalnum()))
+        text = str(re.sub(r'([а-я])\1+', r'\1', text))
+        text = str(re.sub(r'([a-z])\1+', r'\1', text))
+        for i in text.split():
+            i = str(i)
+            for i1 in blockSlova:
+                i1 = str(i1)
+                #print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
+                if int(round(ratio(i, i1)*100)) > 86:
+                    sumbantime+=5
+                    text.replace(i," ")
+                    break
+        for i in blockSlova:
+            if i in text:
+                sumbantime+=5
+                text.replace(i1," ")
+        if int(sumbantime)>0:
+            await message.reply("бан на "+str(sumbantime)+" мин")
+            now = datetime.datetime.now()
+            ban_until = now + timedelta(minutes=sumbantime)
+            timestamp = int(ban_until.timestamp())
+            try:
+                await bot.restrict_chat_member(
+                    chat_id=message.chat.id,
+                    user_id=message.from_user.id,
+                    permissions=types.ChatPermissions(),
+                    until_date=timestamp)
+            except:
+                pass
 
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
