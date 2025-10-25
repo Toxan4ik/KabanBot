@@ -61,25 +61,35 @@ async def ask_command(message: types.Message):
 
 @dp.message(Command("info"))
 async def info_command(message: types.Message):
-	await message.reply("Вот все команды, по которым вы можете обращаться ко мне:\n\n/ask [вопрос] --- Спросить у меня что-либо\n/criminal --- Узнать свою статью УК РФ\n/dice --- Бросить кубик\n/target --- Попасть в мишень\n/casino --- Играть в казино\n/report [@провинившийся] [причина] --- Кинуть жб\n/info --- Информация о командах")
+	await message.reply("Вот все команды, по которым вы можете обращаться ко мне:\n\n/ask [вопрос] --- Спросить у меня что-либо\n/criminal --- Узнать свою статью УК РФ\n/dice --- Бросить кубик\n/bouling --- Боулинг\n/target --- Попасть в мишень\n/casino --- Играть в казино\n/report [@провинившийся] [причина] --- Кинуть жб\n/info --- Информация о командах")
 
 @dp.message(Command("dice"))
 async def dice_command(message: types.Message):
-    dice_message = await message.reply_dice(emoji="🎲")
+    await bot.delete_message(message.chat.id, message_id=message.message_id)
+    dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
     await asyncio.sleep(1.5)
-    await message.reply(str(message.from_user.first_name)+" вам выпало число: "+str(dice_message.dice.value))
+    await dice_message.reply(str(message.from_user.first_name)+" вам выпало число: "+str(dice_message.dice.value))
 
 @dp.message(Command("target"))
 async def target_command(message: types.Message):
-    target_messages = await message.reply_dice(emoji="🎯")
+    await bot.delete_message(message.chat.id, message_id=message.message_id)
+    target_messages = await bot.send_dice(message.chat.id, emoji="🎯")
     await asyncio.sleep(1.5)
-    await message.reply(str(message.from_user.first_name)+" вы попали в число: "+str(target_messages.dice.value))
+    await target_messages.reply(str(message.from_user.first_name)+" вы попали в число: "+str(target_messages.dice.value))
 
 @dp.message(Command("casino"))
 async def casino_command(message: types.Message):
-	casino_message = await message.reply_dice(emoji="🎰")
-	await asyncio.sleep(1.5)
-	await message.reply("Ваш выигрыш "+str(message.from_user.first_name)+": "+str(casino_message.dice.value))
+    await bot.delete_message(message.chat.id, message_id=message.message_id)
+    casino_message = await bot.send_dice(message.chat.id, emoji="🎰")
+    await asyncio.sleep(1.5)
+    await casino_message.reply("Ваш выигрыш "+str(message.from_user.first_name)+": "+str(casino_message.dice.value))
+
+@dp.message(Command("bouling"))
+async def casino_command(message: types.Message):
+    await bot.delete_message(message.chat.id, message_id=message.message_id)
+    bouling_message = await bot.send_dice(message.chat.id, emoji="🎳")
+    await asyncio.sleep(1.5)
+    await bouling_message.reply("Ваш выигрыш "+str(message.from_user.first_name)+": "+str(bouling_message.dice.value))
 
 @dp.message(Command("criminal"))
 async def criminal_command(message: types.Message):
