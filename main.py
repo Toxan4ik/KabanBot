@@ -18,6 +18,7 @@ from Levenshtein import ratio
 from datetime import timedelta
 import datetime
 
+import time
 import re
 import random #-1002252566013
 
@@ -25,39 +26,46 @@ bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7
 dp = Dispatcher()
 blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis"]
 
+async def ask(message, prompt):
+    mestime = await message.reply("Ожидайте...")
+    for _ in range(0,5):
+        try:
+            client = AsyncClient(
+                base_url="https://openrouter.ai/api/v1",
+                api_key="sk"+"-or-v1-42a0546323558302529"+"54ee9bdfefc822bc709e9"+"85ff17053d03d6a36bda3b5c",)
+
+            completion = await client.chat.completions.create(
+                model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+                extra_body={},
+                messages=[
+                    {
+                    "role": "user",
+                    "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
+                    }])
+            try:
+                await mestime.delete()
+            except:
+                pass
+            await message.reply(completion.choices[0].message.content)
+            return 0
+        except:
+            pass
+    try:
+        await mestime.delete()
+    except:
+        pass
+    messageerror = await message.reply("Извините, я не могу сейчас ответить из-за слишком большой загруженности, попробуйте позже!(")
+    await asyncio.sleep(4)
+    await bot.delete_message(message.chat.id, messageerror.message_id)
+    await bot.delete_message(message.chat.id, message.message_id)
+
 @dp.message(Command("ask"))
 async def ask_command(message: types.Message):
     prompt = message.text.replace("/ask", "").strip()
     if not prompt:
         await message.reply(str(message.from_user.first_name)+" вы отправили пустое сообщение!")
         return
-
-    mestime = await message.reply("Ожидайте...")
-    try:
-        client = AsyncClient(
-            base_url="https://openrouter.ai/api/v1",
-            api_key="sk"+"-or-v1-42a0546323558302529"+"54ee9bdfefc822bc709e9"+"85ff17053d03d6a36bda3b5c",)
-
-        completion = await client.chat.completions.create(
-            model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-            extra_body={},
-            messages=[
-                {
-                "role": "user",
-                "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
-                }])
-        try:
-            await mestime.delete()
-        except:
-            pass
-        await message.reply(completion.choices[0].message.content)
-    except Exception as e:
-        try:
-            await mestime.delete()
-        except:
-            pass
-        print("Произошла ошибка: "+str(e))
-        await message.reply("Произошла ошибка: "+str(e))
+    await ask(message, prompt)
 
 @dp.message(Command("info"))
 async def info_command(message: types.Message):
