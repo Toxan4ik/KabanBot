@@ -22,7 +22,7 @@ import time
 import re
 import random #-1002252566013
 
-bot = Bot(token="7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE") # кабан 7746997930:AAGisN5ApKcZV53BbDXya2an0Jn9OKCJOFE   погода 7783613623:AAHHSWVi7HlB6PhX2rEmJeFNCZKMXO7UJGI
+bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
 blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis"]
 
@@ -240,6 +240,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
