@@ -20,7 +20,7 @@ import datetime
 
 import time
 import re
-import random #-1002252566013
+import random
 
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
@@ -143,10 +143,10 @@ async def report_com(message: types.Message):
         text = "🛑 РЕПОРТ! 🛑\n\nПользователь: "+str(NameAndLastname)+" c ID: "+str(message.from_user.id)+"\nПожаловался на пользователя "+str(Name)+"\n\nПричина: "+str(text)
         try:
             try:
-                await bot.send_message(1828269322, text=text)  # ЕГОР: 5038019526 #АНТОН: 1828269322
+                await bot.send_message(1828269322, text=text)
             except:
                 pass
-            await bot.send_message(5038019526, text=text) #ЕГОР: 5038019526 #АНТОН: 1828269322
+            await bot.send_message(5038019526, text=text)
         except:
             await bot.send_message(message.chat.id, text="🛑 Невозможно отправить репорт, т.к у админа нет активного чата с ботом 🛑")
     else:
@@ -240,6 +240,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
