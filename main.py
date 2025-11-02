@@ -193,23 +193,65 @@ async def cmd_myinfo(message: types.Message):
 	await message.reply(AllInfo)
 """""
 
-async def CheckSlova(text, message):
+@dp.message(lambda message: message.from_user.id)
+async def reestr(message: types.Message):
     sumbantime = 0
-    for i in text.split():
-        i = str(i)
-        for i1 in blockSlova:
-            i1 = str(i1)
-            #print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
-            if int(round(ratio(i, i1)*100)) > 86:
-                sumbantime+=5
-                text.replace(i," ")
-                break
-            for i in blockSlova:
-                if i in text:
-                    sumbantime+=5
-                    text.replace(i1," ")
+    text = str(message.text).lower().replace("()", "о").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
+    text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r"([а-я])\1+", r"\1", text)
+    text = re.sub(r"([a-z])\1+", r"\1", text)
+
+    zamena = {
+        "а": ["а", "a", "@"],
+        "б": ["б", "6", "b"],
+        "в": ["в", "b", "v"],
+        "г": ["г", "r", "g"],
+        "д": ["д", "d", "g"],
+        "е": ["е", "e"],
+        "ё": ["ё", "e"],
+        "ж": ["ж", "zh", "*"],
+        "з": ["з", "3", "z"],
+        "и": ["и", "u", "i","n"],
+        "й": ["й", "u", "i"],
+        "к": ["к", "k", "i{", "|{"], 
+        "л": ["л", "l", "ji"], 
+        "м": ["м", "m"],
+        "н": ["н", "h", "n"],
+        "о": ["о", "o", "0", "()"],
+        "п": ["п", "n", "p"],
+        "р": ["р", "r", "p"],
+        "с": ["с", "c", "s"],
+        "т": ["т", "m", "t"],
+        "у": ["у", "y", "u"],
+        "ф": ["ф", "f"],
+        "х": ["х", "x", "h", "}{"],
+        "ц": ["ц", "c", "u,"],
+        "ч": ["ч", "ch"],
+        "ш": ["ш", "sh"],
+        "щ": ["щ", "sch"],
+        "ь": ["ь", "b"],
+        "ы": ["ы", "bi", "bI", "bl"],
+        "ъ": ["ъ", "b"],
+        "э": ["э", "е", "e"],
+        "ю": ["ю", "io", "Io", "lo"],
+        "я": ["я", "ya"]
+    }
+
+    for k, v in zamena.items():
+        for og_letters in v:
+            for letter in text:
+                if og_letters == letter:
+                    text = text.replace(letter, k)
+
+    for blocked_word in blockSlova:
+        sim_ratio = ratio(text, blocked_word) * 100
+        if sim_ratio > 89:
+            sumbantime += 5
+            break
+
     if int(sumbantime)>0:
-        await message.reply("бан на "+str(sumbantime)+" мин")
+        await message.reply("Бан на "+str(sumbantime)+" мин!")
         now = datetime.datetime.now()
         ban_until = now + timedelta(minutes=sumbantime)
         timestamp = int(ban_until.timestamp())
@@ -221,98 +263,6 @@ async def CheckSlova(text, message):
                 until_date=timestamp)
         except:
             pass
-    if sumbantime == 0:
-        return 0
-    else:
-        return 1
-
-@dp.message(lambda message: message.from_user.id)
-async def reestr(message: types.Message):
-    try:
-        if str(message.sticker.file_id) == "CAACAgIAAyEFAAS-sUXhAAICsGj82mZGFkD4z_8DMScm5QmvN_8uAAJ7egACL83ZS5UMSiKceRpVNgQ":
-            sumbantime = 10
-            await message.reply("бан на "+str(sumbantime)+" мин")
-            now = datetime.datetime.now()
-            ban_until = now + timedelta(minutes=sumbantime)
-            timestamp = int(ban_until.timestamp())
-            await bot.restrict_chat_member(
-                    chat_id=message.chat.id,
-                    user_id=message.from_user.id,
-                    permissions=types.ChatPermissions(),
-                    until_date=timestamp)
-    except:
-        text = str(message.text).lower().replace("()","о")
-        text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
-        text = re.sub(r'\s+', ' ', text)
-        text = str(re.sub(r"([а-я])\1+", r"\1", text))
-        text = str(re.sub(r"([a-z])\1+", r"\1", text))
-        if int(await CheckSlova(text, message)) == 0:
-            #zamena = {"0":"о","h":"н","x":"х","a":"а","u":"и","k":"к","@":"а","v":"в"}
-            zamena = {
-                "а":["а","a","@"],
-                "б":["б","6","b"],
-                "в":["в","b","v"],
-                "г":["г","r","g"],
-                "д":["д","d","g"],
-                "е":["е","e"],
-                "ё":["ё","e"],
-                "ж":["ж","zh","*"],
-                "з":["з","3","z"],
-                "и" : ["и", "u", "i"],
-                "й" : ["й", "u", "i"],
-                "к" : ["к", "k", "i{", "|{"],
-                "л" : ["л", "l", "ji"],
-                "м" : ["м", "m"],
-                "н" : ["н", "h", "n"],
-                "о" : ["о", "o", "0","()"],
-                "п" : ["п", "n", "p"],
-                "р" : ["р", "r", "p"],
-                "с" : ["с", "c", "s"],
-                "т" : ["т", "m", "t"],
-                "у" : ["у", "y", "u"],
-                "ф" : ["ф", "f"],
-                "х" : ["х", "x", "h","}{"],
-                "ц" : ["ц", "c", "u,"],
-                "ч" : ["ч", "ch"],
-                "ш" : ["ш", "sh"],
-                "щ" : ["щ", "sch"],
-                "ь" : ["ь", "b"],
-                "ы" : ["ы", "bi", "bI", "bl"],
-                "ъ" : ["ъ", "b"],
-                "э" : ["э","е","e"],
-                "ю" : ["ю","io","Io","lo"],
-                "я" : ["я","ya"]
-            }
-            for k, v in zamena.items():
-                for og_letters in v:
-                    for letter in text:
-                        if og_letters == letter:
-                            text = text.replace(letter, k)
-            for i in text.split():
-                i = str(i)
-                for i1 in blockSlova:
-                    i1 = str(i1)
-                    if int(round(ratio(i, i1)*100)) > 86:
-                        sumbantime+=5
-                        text.replace(i," ")
-                        break
-                    for i in blockSlova:
-                        if i in text:
-                            sumbantime+=5
-                            text.replace(i1," ")
-            if int(sumbantime)>0:
-                await message.reply("бан на "+str(sumbantime)+" мин")
-                now = datetime.datetime.now()
-                ban_until = now + timedelta(minutes=sumbantime)
-                timestamp = int(ban_until.timestamp())
-                try:
-                    await bot.restrict_chat_member(
-                        chat_id=message.chat.id,
-                        user_id=message.from_user.id,
-                        permissions=types.ChatPermissions(),
-                        until_date=timestamp)
-                except:
-                    pass
         
 
 async def main():
