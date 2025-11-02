@@ -195,12 +195,12 @@ async def cmd_myinfo(message: types.Message):
 
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
-    sumbantime = 0
     text = str(message.text).lower().replace("()", "о").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
     text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r"([а-я])\1+", r"\1", text)
     text = re.sub(r"([a-z])\1+", r"\1", text)
+    text1 = text
 
     zamena = {
         "а": ["а", "a", "@"],
@@ -238,6 +238,7 @@ async def reestr(message: types.Message):
         "я": ["я", "ya"]
     }
 
+    zapretnideno = []
     for k, v in zamena.items():
         for og_letters in v:
             for letter in text:
@@ -246,11 +247,20 @@ async def reestr(message: types.Message):
 
     for blocked_word in blockSlova:
         sim_ratio = ratio(text, blocked_word) * 100
-        if sim_ratio > 89:
-            sumbantime += 5
+        print(sim_ratio, text, blocked_word)
+        if sim_ratio > 89 and blocked_word not in zapretnideno:
+            zapretnideno.append(blocked_word)
             break
-
-    if int(sumbantime)>0:
+    
+    for blocked_word in blockSlova:
+        if blocked_word in text1 and blocked_word not in zapretnideno:
+            zapretnideno.append(blocked_word)
+            break
+        
+    if len(zapretnideno)>0:
+        sumbantime = 0
+        for _ in zapretnideno:
+            sumbantime+=5
         await message.reply("Бан на "+str(sumbantime)+" мин!")
         now = datetime.datetime.now()
         ban_until = now + timedelta(minutes=sumbantime)
