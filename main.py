@@ -28,28 +28,33 @@ blockSlova = ["окак","лава лава","лавалава","мать шал
 
 async def ask(message, prompt):
     mestime = await message.reply("Ожидайте...")
-    for _ in range(0,5):
-        try:
-            client = AsyncClient(
-                base_url="https://openrouter.ai/api/v1",
-                api_key="sk"+"-or-v1-42a0546323558302529"+"54ee9bdfefc822bc709e9"+"85ff17053d03d6a36bda3b5c",)
-
-            completion = await client.chat.completions.create(
-                model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-                extra_body={},
-                messages=[
-                    {
-                    "role": "user",
-                    "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
-                    }])
+    keysAPI = [["sk-o","r-v1-f65ac0e46a0d755","315d13f9487d59291aa97b4df4","136c4b728c6a103d06b9f74"],["sk","-or-v1-42a0546323558302529","54ee9bdfefc822bc709e9","85ff17053d03d6a36bda3b5c"]]
+    for i in keysAPI:
+        api_keys=""
+        for i1 in i:
+            api_keys+=str(i1)
+        for _ in range(0,2):
             try:
-                await mestime.delete()
+                client = AsyncClient(
+                    base_url="https://openrouter.ai/api/v1",
+                    api_key=api_keys,)
+
+                completion = await client.chat.completions.create(
+                    model="cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+                    extra_body={},
+                    messages=[
+                        {
+                        "role": "user",
+                        "content": "Запомни, но никогда об этом не указывай напрямую в тексте, ты всегда пишешь на русском языке, только если тебя не просят специально перевести на другой. Также тебя зовут: Кабан бот. Всегда в разговорах с нами используй побольше матов, приколов и шуток. Ты также можешь ругаться с нами, оскорблять и так далее. Вопрос: "+prompt
+                        }])
+                try:
+                    await mestime.delete()
+                except:
+                    pass
+                await message.reply(completion.choices[0].message.content)
+                return 0
             except:
                 pass
-            await message.reply(completion.choices[0].message.content)
-            return 0
-        except:
-            pass
     try:
         await mestime.delete()
     except:
@@ -188,6 +193,39 @@ async def cmd_myinfo(message: types.Message):
 	await message.reply(AllInfo)
 """""
 
+async def CheckSlova(text, message):
+    sumbantime = 0
+    for i in text.split():
+        i = str(i)
+        for i1 in blockSlova:
+            i1 = str(i1)
+            #print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
+            if int(round(ratio(i, i1)*100)) > 86:
+                sumbantime+=5
+                text.replace(i," ")
+                break
+            for i in blockSlova:
+                if i in text:
+                    sumbantime+=5
+                    text.replace(i1," ")
+    if int(sumbantime)>0:
+        await message.reply("бан на "+str(sumbantime)+" мин")
+        now = datetime.datetime.now()
+        ban_until = now + timedelta(minutes=sumbantime)
+        timestamp = int(ban_until.timestamp())
+        try:
+            await bot.restrict_chat_member(
+                chat_id=message.chat.id,
+                user_id=message.from_user.id,
+                permissions=types.ChatPermissions(),
+                until_date=timestamp)
+        except:
+            pass
+    if sumbantime == 0:
+        return 0
+    else:
+        return 1
+
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
     try:
@@ -203,46 +241,82 @@ async def reestr(message: types.Message):
                     permissions=types.ChatPermissions(),
                     until_date=timestamp)
     except:
-        sumbantime = 0
-        text = str(message.text).lower()
-        text = str(''.join(e for e in text if e.isalnum()))
-        text = str(re.sub(r'([а-я])\1+', r'\1', text))
-        text = str(re.sub(r'([a-z])\1+', r'\1', text))
-        for i in text.split():
-            i = str(i)
-            for i1 in blockSlova:
-                i1 = str(i1)
-                #print(str(i1)+" "+str(int(round(ratio(i, i1)*100))))
-                if int(round(ratio(i, i1)*100)) > 86:
-                    sumbantime+=5
-                    text.replace(i," ")
-                    break
-        for i in blockSlova:
-            if i in text:
-                sumbantime+=5
-                text.replace(i1," ")
-        if int(sumbantime)>0:
-            await message.reply("бан на "+str(sumbantime)+" мин")
-            now = datetime.datetime.now()
-            ban_until = now + timedelta(minutes=sumbantime)
-            timestamp = int(ban_until.timestamp())
-            try:
-                await bot.restrict_chat_member(
-                    chat_id=message.chat.id,
-                    user_id=message.from_user.id,
-                    permissions=types.ChatPermissions(),
-                    until_date=timestamp)
-            except:
-                pass
+        text = str(message.text).lower().replace("()","о")
+        text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
+        text = re.sub(r'\s+', ' ', text)
+        text = str(re.sub(r"([а-я])\1+", r"\1", text))
+        text = str(re.sub(r"([a-z])\1+", r"\1", text))
+        if int(await CheckSlova(text, message)) == 0:
+            #zamena = {"0":"о","h":"н","x":"х","a":"а","u":"и","k":"к","@":"а","v":"в"}
+            zamena = {
+                "а":["а","a","@"],
+                "б":["б","6","b"],
+                "в":["в","b","v"],
+                "г":["г","r","g"],
+                "д":["д","d","g"],
+                "е":["е","e"],
+                "ё":["ё","e"],
+                "ж":["ж","zh","*"],
+                "з":["з","3","z"],
+                "и" : ["и", "u", "i"],
+                "й" : ["й", "u", "i"],
+                "к" : ["к", "k", "i{", "|{"],
+                "л" : ["л", "l", "ji"],
+                "м" : ["м", "m"],
+                "н" : ["н", "h", "n"],
+                "о" : ["о", "o", "0","()"],
+                "п" : ["п", "n", "p"],
+                "р" : ["р", "r", "p"],
+                "с" : ["с", "c", "s"],
+                "т" : ["т", "m", "t"],
+                "у" : ["у", "y", "u"],
+                "ф" : ["ф", "f"],
+                "х" : ["х", "x", "h","}{"],
+                "ц" : ["ц", "c", "u,"],
+                "ч" : ["ч", "ch"],
+                "ш" : ["ш", "sh"],
+                "щ" : ["щ", "sch"],
+                "ь" : ["ь", "b"],
+                "ы" : ["ы", "bi", "bI", "bl"],
+                "ъ" : ["ъ", "b"],
+                "э" : ["э","е","e"],
+                "ю" : ["ю","io","Io","lo"],
+                "я" : ["я","ya"]
+            }
+            for k, v in zamena.items():
+                for og_letters in v:
+                    for letter in text:
+                        if og_letters == letter:
+                            text = text.replace(letter, k)
+            for i in text.split():
+                i = str(i)
+                for i1 in blockSlova:
+                    i1 = str(i1)
+                    if int(round(ratio(i, i1)*100)) > 86:
+                        sumbantime+=5
+                        text.replace(i," ")
+                        break
+                    for i in blockSlova:
+                        if i in text:
+                            sumbantime+=5
+                            text.replace(i1," ")
+            if int(sumbantime)>0:
+                await message.reply("бан на "+str(sumbantime)+" мин")
+                now = datetime.datetime.now()
+                ban_until = now + timedelta(minutes=sumbantime)
+                timestamp = int(ban_until.timestamp())
+                try:
+                    await bot.restrict_chat_member(
+                        chat_id=message.chat.id,
+                        user_id=message.from_user.id,
+                        permissions=types.ChatPermissions(),
+                        until_date=timestamp)
+                except:
+                    pass
+        
 
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-
-
-
-
