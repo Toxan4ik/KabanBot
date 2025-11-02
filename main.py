@@ -250,13 +250,12 @@ async def reestr(message: types.Message):
         print(sim_ratio, text, blocked_word)
         if sim_ratio > 89 and blocked_word not in zapretnideno:
             zapretnideno.append(blocked_word)
-            break
     
     for blocked_word in blockSlova:
         if blocked_word in text1 and blocked_word not in zapretnideno:
             zapretnideno.append(blocked_word)
-            break
-        
+    
+    print(zapretnideno)
     if len(zapretnideno)>0:
         sumbantime = 0
         for _ in zapretnideno:
