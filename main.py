@@ -210,6 +210,7 @@ async def ban(message, bantime):
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
     try:
+		print("айди: ", message.sticker.file_id)
         if message.sticker.file_id in ["CAACAgIAAxkBAAObaZ3pmxLVtQ5Rts9E2qYEaD45l8MAAn6EAAJerYBKqroo-arAWy86BA"]:
             dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
             await asyncio.sleep(1.5)
@@ -292,3 +293,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
