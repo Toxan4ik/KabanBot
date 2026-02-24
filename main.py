@@ -244,7 +244,6 @@ async def reestr(message: types.Message):
 		for blocked_word in blockSlova:
 			if blocked_word in text1 and blocked_word not in zapretnideno:
 				zapretnideno.append(blocked_word)
-		print(zapretnideno)
 		if len(zapretnideno)>0:
 			sumbantime = 0
 			for _ in zapretnideno:
@@ -257,4 +256,5 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.run(main())
+
 
