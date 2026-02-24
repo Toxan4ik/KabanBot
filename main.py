@@ -1,5 +1,6 @@
 import os
 
+os.system("pip install python-dotenv")
 os.system("pip install openai")
 os.system("pip install bs4")
 os.system("pip install lxml")
@@ -256,3 +257,4 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.run(main())
+
