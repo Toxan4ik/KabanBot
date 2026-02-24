@@ -209,17 +209,6 @@ async def ban(message, bantime):
 
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
-    try:
-		print("айди: ", message.sticker.file_id)
-        if message.sticker.file_id in ["CAACAgIAAxkBAAObaZ3pmxLVtQ5Rts9E2qYEaD45l8MAAn6EAAJerYBKqroo-arAWy86BA"]:
-            dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
-            await asyncio.sleep(1.5)
-            if int(dice_message.dice.value)<=4:
-                await ban(message, 60)
-            else:
-                await dice_message.reply(str(message.from_user.first_name)+" сегодня тебе повезло, твой срок срезается в два раза!")
-                await ban(message, 30)
-	except:
         text = str(message.text).lower().replace("()", "о").replace("_", "").replace("-", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
         text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
         text = re.sub(r'\s+', ' ', text)
@@ -293,6 +282,7 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
 
