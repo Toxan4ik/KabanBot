@@ -219,7 +219,7 @@ async def reestr(message: types.Message):
             else:
                 await dice_message.reply(str(message.from_user.first_name)+" сегодня тебе повезло, твой срок срезается в два раза!")
                 await ban(message, 30)
-    except:
+	except:
         text = str(message.text).lower().replace("()", "о").replace("_", "").replace("-", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
         text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
         text = re.sub(r'\s+', ' ', text)
@@ -293,5 +293,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
 
