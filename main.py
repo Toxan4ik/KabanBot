@@ -24,11 +24,11 @@ import random
 
 bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
-blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis"]
+blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis","извинись","извиняйся"]
 
 async def ask(message, prompt):
     mestime = await message.reply("Ожидайте...")
-    keysAPI = [["sk-or-v1-f7c46fec6e94","2a27763c5b8c53","064e0616b2cc07e2607ed","1a992317582010765"],["sk-or-v1-9f75","c12aed7ba5ce54dfa4","9bc26e54608243526a2221","89c2ec1406f4b407fd59"]]
+    keysAPI = [["sk-or-v1-dd9cc9","296392d555aa30c6","be04f383a4bc6283858","16c370054c807feac81cfba"],["sk-or-v1-0f8","cb18515e6270c04","894c88981d02ccc5d2d","25dbc4394b3b03b61b9a6a27bbb"]]
     for i in keysAPI:
         api_keys=""
         for i1 in i:
@@ -40,7 +40,7 @@ async def ask(message, prompt):
                     api_key=api_keys,)
 
                 completion = await client.chat.completions.create(
-                    model="xiaomi/mimo-v2-flash:free",
+                    model="xiaomi/mimo-v2-flash",
                     extra_body={},
                     messages=[
                         {
@@ -193,85 +193,98 @@ async def cmd_myinfo(message: types.Message):
 	await message.reply(AllInfo)
 """""
 
+async def ban(message, bantime):
+    await message.reply("Бан на "+str(bantime)+" мин!")
+    now = datetime.datetime.now()
+    ban_until = now + timedelta(minutes=bantime)
+    timestamp = int(ban_until.timestamp())
+    try:
+        await bot.restrict_chat_member(
+            chat_id=message.chat.id,
+            user_id=message.from_user.id,
+            permissions=types.ChatPermissions(),
+            until_date=timestamp)
+    except:
+        pass
+
 @dp.message(lambda message: message.from_user.id)
 async def reestr(message: types.Message):
-    text = str(message.text).lower().replace("()", "о").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
-    text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r"([а-я])\1+", r"\1", text)
-    text = re.sub(r"([a-z])\1+", r"\1", text)
-    text1 = text
+    try:
+        if message.sticker.file_id in ["CAACAgIAAxkBAAObaZ3pmxLVtQ5Rts9E2qYEaD45l8MAAn6EAAJerYBKqroo-arAWy86BA"]:
+            dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
+            await asyncio.sleep(1.5)
+            if int(dice_message.dice.value)<=4:
+                await ban(message, 60)
+            else:
+                await dice_message.reply(str(message.from_user.first_name)+" сегодня тебе повезло, твой срок срезается в два раза!")
+                await ban(message, 30)
+    except:
+        text = str(message.text).lower().replace("()", "о").replace("_", "").replace("-", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
+        text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
+        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r"([а-я])\1+", r"\1", text)
+        text = re.sub(r"([a-z])\1+", r"\1", text)
+        text1 = text
 
-    zamena = {
-        "а": ["а", "a", "@"],
-        "б": ["б", "6", "b"],
-        "в": ["в", "b", "v"],
-        "г": ["г", "r", "g"],
-        "д": ["д", "d", "g"],
-        "е": ["е", "e"],
-        "ё": ["ё", "e"],
-        "ж": ["ж", "zh", "*"],
-        "з": ["з", "3", "z"],
-        "и": ["и", "u", "i","n"],
-        "й": ["й", "u", "i"],
-        "к": ["к", "k", "i{", "|{"], 
-        "л": ["л", "l", "ji"], 
-        "м": ["м", "m"],
-        "н": ["н", "h", "n"],
-        "о": ["о", "o", "0", "()"],
-        "п": ["п", "n", "p"],
-        "р": ["р", "r", "p"],
-        "с": ["с", "c", "s"],
-        "т": ["т", "m", "t"],
-        "у": ["у", "y", "u"],
-        "ф": ["ф", "f"],
-        "х": ["х", "x", "h", "}{"],
-        "ц": ["ц", "c", "u,"],
-        "ч": ["ч", "ch"],
-        "ш": ["ш", "sh"],
-        "щ": ["щ", "sch"],
-        "ь": ["ь", "b"],
-        "ы": ["ы", "bi", "bI", "bl"],
-        "ъ": ["ъ", "b"],
-        "э": ["э", "е", "e"],
-        "ю": ["ю", "io", "Io", "lo"],
-        "я": ["я", "ya"]
-    }
+        zamena = {
+            "а": ["а", "a", "@", "&"],
+            "б": ["б", "6", "b"],
+            "в": ["в", "b", "v"],
+            "г": ["г", "r", "g"],
+            "д": ["д", "d", "g"],
+            "е": ["е", "e"],
+            "ё": ["ё", "e"],
+            "ж": ["ж", "zh", "*"],
+            "з": ["з", "3", "z"],
+            "и": ["и", "u", "i","n"],
+            "й": ["й", "u", "i"],
+            "к": ["к", "k", "i{", "|{"], 
+            "л": ["л", "l", "ji"], 
+            "м": ["м", "m"],
+            "н": ["н", "h", "n"],
+            "о": ["о", "o", "0", "()"],
+            "п": ["п", "n", "p"],
+            "р": ["р", "r", "p"],
+            "с": ["с", "c", "s"],
+            "т": ["т", "m", "t"],
+            "у": ["у", "y", "u"],
+            "ф": ["ф", "f"],
+            "х": ["х", "x", "h", "}{"],
+            "ц": ["ц", "c", "u,"],
+            "ч": ["ч", "ch"],
+            "ш": ["ш", "sh"],
+            "щ": ["щ", "sch"],
+            "ь": ["ь", "b"],
+            "ы": ["ы", "bi", "bI", "bl"],
+            "ъ": ["ъ", "b"],
+            "э": ["э", "е", "e"],
+            "ю": ["ю", "io", "Io", "lo"],
+            "я": ["я", "ya", "y", "a", "&"]
+        }
 
-    zapretnideno = []
-    for k, v in zamena.items():
-        for og_letters in v:
-            for letter in text:
-                if og_letters == letter:
-                    text = text.replace(letter, k)
+        zapretnideno = []
+        for k, v in zamena.items():
+            for og_letters in v:
+                for letter in text:
+                    if og_letters == letter:
+                        text = text.replace(letter, k)
 
-    for blocked_word in blockSlova:
-        sim_ratio = ratio(text, blocked_word) * 100
-        print(sim_ratio, text, blocked_word)
-        if sim_ratio > 89 and blocked_word not in zapretnideno:
-            zapretnideno.append(blocked_word)
-    
-    for blocked_word in blockSlova:
-        if blocked_word in text1 and blocked_word not in zapretnideno:
-            zapretnideno.append(blocked_word)
-    
-    print(zapretnideno)
-    if len(zapretnideno)>0:
-        sumbantime = 0
-        for _ in zapretnideno:
-            sumbantime+=5
-        await message.reply("Бан на "+str(sumbantime)+" мин!")
-        now = datetime.datetime.now()
-        ban_until = now + timedelta(minutes=sumbantime)
-        timestamp = int(ban_until.timestamp())
-        try:
-            await bot.restrict_chat_member(
-                chat_id=message.chat.id,
-                user_id=message.from_user.id,
-                permissions=types.ChatPermissions(),
-                until_date=timestamp)
-        except:
-            pass
+        for blocked_word in blockSlova:
+            sim_ratio = ratio(text, blocked_word) * 100
+            print(sim_ratio, text, blocked_word)
+            if sim_ratio >= 80 and blocked_word not in zapretnideno:
+                zapretnideno.append(blocked_word)
+        
+        for blocked_word in blockSlova:
+            if blocked_word in text1 and blocked_word not in zapretnideno:
+                zapretnideno.append(blocked_word)
+        
+        print(zapretnideno)
+        if len(zapretnideno)>0:
+            sumbantime = 0
+            for _ in zapretnideno:
+                sumbantime+=5
+            await ban(message, sumbantime)
         
 
 async def main():
