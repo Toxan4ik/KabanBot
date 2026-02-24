@@ -1,6 +1,5 @@
 import os
 
-os.system("pip install python-dotenv")
 os.system("pip install openai")
 os.system("pip install bs4")
 os.system("pip install lxml")
@@ -23,7 +22,7 @@ import time
 import re
 import random
 
-bot = Bot(token=os.getenv('BOT_TOKEN'))
+bot = Bot(token="7746997930:AAEUQh7zR45I_Sdd3sLjOAXnnepjJRA1300")
 dp = Dispatcher()
 blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis","извинись","извиняйся"]
 
@@ -212,7 +211,7 @@ async def ban(message, bantime):
 async def reestr(message: types.Message):
 	try:
 		print("айди: ", message.sticker.file_id)
-		if message.sticker.file_id in ["CAACAgIAAxkBAAObaZ3pmxLVtQ5Rts9E2qYEaD45l8MAAn6EAAJerYBKqroo-arAWy86BA"]:
+		if message.sticker.file_id in ["CAACAgIAAyEFAASGQ239AAEBMv9pnX7HZWDSHBFC1PK1YZ75aEH4LQACfoQAAl6tgEqquij5qsBbLzoE"]:
 			dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
 			await asyncio.sleep(1.5)
 			if int(dice_message.dice.value)<=4:
@@ -244,6 +243,7 @@ async def reestr(message: types.Message):
 		for blocked_word in blockSlova:
 			if blocked_word in text1 and blocked_word not in zapretnideno:
 				zapretnideno.append(blocked_word)
+		print(zapretnideno)
 		if len(zapretnideno)>0:
 			sumbantime = 0
 			for _ in zapretnideno:
@@ -256,5 +256,3 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.run(main())
-
-
