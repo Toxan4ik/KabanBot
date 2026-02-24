@@ -220,14 +220,14 @@ async def reestr(message: types.Message):
 				await dice_message.reply(str(message.from_user.first_name)+" сегодня тебе повезло, твой срок срезается в два раза!")
 				await ban(message, 30)
 	except: 
-        text = str(message.text).lower().replace("()", "о").replace("_", "").replace("-", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
-        text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
-        text = re.sub(r'\s+', ' ', text)
-        text = re.sub(r"([а-я])\1+", r"\1", text)
-        text = re.sub(r"([a-z])\1+", r"\1", text)
-        text1 = text
-
-        zamena = {
+		text = str(message.text).lower().replace("()", "о").replace("_", "").replace("-", "").replace("1", "").replace("2", "").replace("3", "").replace("4", "").replace("5", "").replace("6", "").replace("7", "").replace("8", "").replace("9", "").strip()
+		text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
+		text = re.sub(r'\s+', ' ', text)
+		text = re.sub(r"([а-я])\1+", r"\1", text)
+		text = re.sub(r"([a-z])\1+", r"\1", text)
+		text1 = text
+		
+		zamena = {
             "а": ["а", "a", "@", "&"],
             "б": ["б", "6", "b"],
             "в": ["в", "b", "v"],
@@ -263,36 +263,34 @@ async def reestr(message: types.Message):
             "я": ["я", "ya", "y", "a", "&"]
         }
 
-        zapretnideno = []
-        for k, v in zamena.items():
-            for og_letters in v:
-                for letter in text:
-                    if og_letters == letter:
-                        text = text.replace(letter, k)
-
-        for blocked_word in blockSlova:
-            sim_ratio = ratio(text, blocked_word) * 100
-            print(sim_ratio, text, blocked_word)
-            if sim_ratio >= 80 and blocked_word not in zapretnideno:
-                zapretnideno.append(blocked_word)
-        
-        for blocked_word in blockSlova:
-            if blocked_word in text1 and blocked_word not in zapretnideno:
-                zapretnideno.append(blocked_word)
-        
-        print(zapretnideno)
-        if len(zapretnideno)>0:
-            sumbantime = 0
-            for _ in zapretnideno:
-                sumbantime+=5
-            await ban(message, sumbantime)
+		zapretnideno = []
+		for k, v in zamena.items():
+			for og_letters in v:
+				for letter in text:
+					if og_letters == letter:
+						text = text.replace(letter, k)
+		for blocked_word in blockSlova:
+			sim_ratio = ratio(text, blocked_word) * 100
+			print(sim_ratio, text, blocked_word)
+			if sim_ratio >= 80 and blocked_word not in zapretnideno:
+				zapretnideno.append(blocked_word)
+		for blocked_word in blockSlova:
+			if blocked_word in text1 and blocked_word not in zapretnideno:
+				zapretnideno.append(blocked_word)
+		print(zapretnideno)
+		if len(zapretnideno)>0:
+			sumbantime = 0
+			for _ in zapretnideno:
+				sumbantime+=5
+			await ban(message, sumbantime)
         
 
 async def main():
-    await dp.start_polling(bot)
+	await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+	asyncio.run(main())
+
 
 
 
