@@ -211,7 +211,7 @@ async def ban(message, bantime):
 async def reestr(message: types.Message):
 	try:
 		print("айди: ", message.sticker.file_id)
-		if message.sticker.file_id in ["CAACAgIAAyEFAASGQ239AAEBMv9pnX7HZWDSHBFC1PK1YZ75aEH4LQACfoQAAl6tgEqquij5qsBbLzoE"]:
+		if message.sticker.file_id in ["CAACAgIAAxkBAAEQmxRpnelPuTKFRGP9ycwdGOojIWpOHQACfoQAAl6tgEqquij5qsBbLzoE"]:
 			dice_message = await bot.send_dice(message.chat.id, emoji="🎲")
 			await asyncio.sleep(1.5)
 			if int(dice_message.dice.value)<=4:
@@ -256,4 +256,5 @@ async def main():
 
 if __name__ == "__main__":
 	asyncio.run(main())
+
 
