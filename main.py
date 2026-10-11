@@ -4,8 +4,6 @@ os.system("pip install bs4")
 os.system("pip install aiogram")
 import asyncio
 import random
-import re
-import urllib.request
 from datetime import timedelta
 import datetime
 import requests
@@ -71,7 +69,7 @@ async def criminal_command(message: types.Message):
         url = "https://rulaws.ru/uk/?ysclid=mh0o16yda4718036120"
         req = requests.get(url)
         src = req.text
-        soup = BeautifulSoup(src, "lxml")
+        soup = BeautifulSoup(src, "html.parser")
         vibor = random.randint(143, len(soup.find("table").find_all("tr")))
         if "Глава" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "Раздел" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "ЧАСТЬ ОБЩАЯ" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","")  and "Утратила силу" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n",""):
             await message.reply("👤 "+str(message.from_user.username)+" обвиняется по "+str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")+" 🔗")
@@ -131,3 +129,4 @@ if __name__ == "__main__":
         loop.create_task(main())
     except RuntimeError:
         asyncio.run(main())
+
