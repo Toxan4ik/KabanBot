@@ -16,7 +16,7 @@ import time
 import re
 import random
 
-bot = Bot(token="7746997930:AAEUQh7zR45I_Sdd3sLjOAXnnepjJRA1300")
+bot = Bot(token="7746997930:AAF2sexstjqbfA-1RXXWTZUNaPs5hKx3eXA")
 dp = Dispatcher()
 blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis","извинись","извиняйся"]
 
