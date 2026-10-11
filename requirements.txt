@@ -1,0 +1,6 @@
+openai
+bs4
+lxml
+python-Levenshtein
+asyncio
+aiogram
