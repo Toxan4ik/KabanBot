@@ -1,3 +1,4 @@
+import os
 import asyncio
 import random
 import re
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 
-bot = Bot(token="7746997930:AAHG7ADvjzTKjv5eTRb-oiwhov-pA5vWEYQ")
+bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
 @dp.message(Command("info"))
