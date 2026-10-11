@@ -1,11 +1,5 @@
 import os
 
-os.system("pip install openai")
-os.system("pip install bs4")
-os.system("pip install lxml")
-os.system("pip install asyncio")
-os.system("pip install python-Levenshtein")
-
 import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
@@ -22,7 +16,7 @@ import time
 import re
 import random
 
-bot = Bot(token=os.getenv('BOT_TOKEN'))
+bot = Bot(token="7746997930:AAEUQh7zR45I_Sdd3sLjOAXnnepjJRA1300")
 dp = Dispatcher()
 blockSlova = ["окак","лава лава","лавалава","мать шалава","шалава мать","мать шалав","шалав мать","клянись","клинись","кльнись","кляниси","клянитесь","клянёшься","клянешься","okak","lava lava","лава lava","lava лава","klyanis","извинись","извиняйся"]
 
