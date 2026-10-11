@@ -1,6 +1,3 @@
-openai
-bs4
-lxml
-python-Levenshtein
 asyncio
+bs4
 aiogram
