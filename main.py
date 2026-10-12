@@ -128,21 +128,21 @@ async def report_command(message: types.Message):
         await message.answer(text="🛑 Вы не можете отправить пустую жалобу! 🛑")
 
 async def ban(message, ban_time):
-    await bot.send_message(text=f"<blockquote> {message.reply_to_message.from_user.username} </blockquote>\n🔒 Бан на {ban_time} мин !", chat_id=message.chat.id, parse_mode=ParseMode.HTML)
+    await bot.send_message(text=f'<blockquote> {message.reply_to_message.from_user.username} </blockquote>\n🔒 {random.choice(["Холопа кинули в темницу","Нищета в заключении","Отправлен на каторгу","Отправлен на парашу","Уронил мыло"])} на {ban_time} мин !', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
     now = datetime.datetime.now()
     ban_until = now + timedelta(minutes=ban_time)
     timestamp = int(ban_until.timestamp())
     await bot.restrict_chat_member(chat_id=message.chat.id, user_id=message.reply_to_message.from_user.id, permissions=types.ChatPermissions(), until_date=timestamp)
 
 async def unban(message):
-    await bot.send_message(text=f'<blockquote>@{message.reply_to_message.from_user.username or "без_ника"} </blockquote>\n🔓 {random.choice(["Разбанен", "Холоп свободен", "Нищита освобождена"])}', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
+    await bot.send_message(text=f'<blockquote>@{message.reply_to_message.from_user.username or "без_ника"} </blockquote>\n🔓 {random.choice(["Разбанен", "Холоп свободен", "Нищета освобождена"])}', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
     await message.chat.restrict(user_id=message.reply_to_message.from_user.id, permissions=ChatPermissions(can_send_messages=True,can_send_audios=True,can_send_documents=True,can_send_photos=True,can_send_videos=True,can_send_video_notes=True,can_send_voice_notes=True,can_send_polls=True,can_send_other_messages=True,can_add_web_page_previews=True,can_change_info=False,can_invite_users=True,can_pin_messages=True))
 
 @dp.message(Command("ban"))
 async def report_com(message: types.Message, command: CommandObject):
     sender_status = await message.chat.get_member(message.from_user.id)
     if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
-        await message.reply(text="❌ Отказано нищита")
+        await message.reply(text="❌ Отказано нищета")
         return
     await bot.delete_message(message.chat.id, message.message_id)
     await ban(message=message, ban_time=float(str(command.args).split()[0]))
@@ -151,7 +151,7 @@ async def report_com(message: types.Message, command: CommandObject):
 async def report_com(message: types.Message):
     sender_status = await message.chat.get_member(message.from_user.id)
     if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
-        await message.reply(text="❌ Отказано нищита")
+        await message.reply(text="❌ Отказано нищета")
         return
     await bot.delete_message(message.chat.id, message.message_id)
     await unban(message=message)
