@@ -102,7 +102,7 @@ async def criminal_command(message: types.Message):
 async def report_command(message: types.Message, command: CommandObject):
     try:
         if message.reply_to_message:
-            text = str(command.args).split()[0]
+            text = str(command.args)
             await bot.delete_message(message.chat.id, message.message_id)
             report_inline_keyboard = InlineKeyboardMarkup(row_width=1, inline_keyboard=[[
                 InlineKeyboardButton(text=f"Бан {message.reply_to_message.from_user.username}", callback_data=f"ban_reply_{message.reply_to_message.from_user.id}_{message.reply_to_message.from_user.username}_{message.chat.id}"),
