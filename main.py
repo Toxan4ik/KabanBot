@@ -9,13 +9,19 @@ import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, Router, F
 from aiogram.filters import Command, CommandObject
 from aiogram.enums import ParseMode, ChatMemberStatus
-from aiogram.types import ChatPermissions
+from aiogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
+router = Router()
+
+class Form(StatesGroup):
+    waiting_for_text = State()
 
 @dp.message(Command("info"))
 async def info_command(message: types.Message):
@@ -28,7 +34,7 @@ async def info_command(message: types.Message):
             "/bouling --- Боулинг\n"
             "/target --- Попасть в мишень\n"
             "/casino --- Играть в казино\n"
-            "/report [@провинившийся] [причина] --- Кинуть жб\n"
+            "[reply на сообщение] /report [причина] --- Кинуть жб\n"
             "/info --- Информация о командах\n\n"
             "----АДМИН КОМАНДЫ----\n"
             "[reply на сообщение] /ban [время бана в МИН] --- Забанить\n"
@@ -41,7 +47,7 @@ async def info_command(message: types.Message):
             "/bouling --- Боулинг\n"
             "/target --- Попасть в мишень\n"
             "/casino --- Играть в казино\n"
-            "/report [@провинившийся] [причина] --- Кинуть жб\n"
+            "[reply на сообщение] /report [причина] --- Кинуть жб\n"
             "/info --- Информация о командах")
 
 @dp.message(Command("dice"))
@@ -51,7 +57,7 @@ async def dice_command(message: types.Message):
     except Exception:
         pass
     dice_message = await bot.send_dice(chat_id=message.chat.id, emoji="🎲")
-    await dice_message.reply(text=f"{message.from_user.first_name}, вам выпало число: {dice_message.dice.value}")
+    await dice_message.reply(text=f"{message.from_user.username}, вам выпало число: {dice_message.dice.value}")
 
 @dp.message(Command("target"))
 async def target_command(message: types.Message):
@@ -60,7 +66,7 @@ async def target_command(message: types.Message):
     except Exception:
         pass
     target_messages = await bot.send_dice(chat_id=message.chat.id, emoji="🎯")
-    await target_messages.reply(text=f"{message.from_user.first_name}, вы попали в число: {target_messages.dice.value}")
+    await target_messages.reply(text=f"{message.from_user.username}, вы попали в число: {target_messages.dice.value}")
 
 @dp.message(Command("casino"))
 async def casino_command(message: types.Message):
@@ -69,7 +75,7 @@ async def casino_command(message: types.Message):
     except Exception:
         pass
     casino_message = await bot.send_dice(chat_id=message.chat.id, emoji="🎰")
-    await casino_message.reply(text=f"Ваш выигрыш {message.from_user.first_name}: {casino_message.dice.value}")
+    await casino_message.reply(text=f"Ваш выигрыш {message.from_user.username}: {casino_message.dice.value}")
 
 @dp.message(Command("bouling"))
 async def bouling_command(message: types.Message):
@@ -78,7 +84,7 @@ async def bouling_command(message: types.Message):
     except Exception:
         pass
     bouling_message = await bot.send_dice(message.chat.id, emoji="🎳")
-    await bouling_message.reply(text=f"Ваш выигрыш {message.from_user.first_name}: {bouling_message.dice.value}")
+    await bouling_message.reply(text=f"Ваш выигрыш {message.from_user.username}: {bouling_message.dice.value}")
 
 @dp.message(Command("criminal"))
 async def criminal_command(message: types.Message):
@@ -93,62 +99,82 @@ async def criminal_command(message: types.Message):
             break
 
 @dp.message(Command("report"))
-async def report_command(message: types.Message):
-    text = str(message.text).replace("/report ", "").replace("/report", "")
-    if str(text).replace(" ", "") != "":
-        Name = str(text).split()[0]
-        try:
+async def report_command(message: types.Message, command: CommandObject):
+    try:
+        if message.reply_to_message and len(str(command.args).split()) == 1:
+            text = str(command.args).split()[0]
             await bot.delete_message(message.chat.id, message.message_id)
-        except Exception:
-            pass
-            
-        NameAndLastname = ""
-        if message.from_user.first_name is not None:
-            NameAndLastname += str(message.from_user.first_name) + " "
-        if message.from_user.last_name is not None:
-            NameAndLastname += str(message.from_user.last_name) + " "
-        NameAndLastname += f"({message.from_user.username})"
-        
-        text = text.replace(f"{Name} ", "")
-        report_text = f"🛑 РЕПОРТ! 🛑\n\nПользователь: {NameAndLastname} c ID: {message.from_user.id}\nПожаловался на пользователя {Name}\n\nПричина: {text}"
-        
-        try:
-            try:
-                await bot.send_message(chat_id=1828269322, text=report_text)
-            except Exception:
-                pass
-            await bot.send_message(chat_id=2021260772, text=report_text)
-        except Exception:
-            await message.answer(text="🛑 Невозможно отправить репорт, т.к. у админа нет активного чата с ботом 🛑")
-    else:
-        try:
+            report_inline_keyboard = InlineKeyboardMarkup(row_width=1, inline_keyboard=[[
+                InlineKeyboardButton(text=f"Бан {message.reply_to_message.from_user.username}", callback_data=f"ban_reply_{message.reply_to_message.from_user.id}_{message.reply_to_message.from_user.username}_{message.chat.id}"),
+                InlineKeyboardButton(text=f"Бан {message.from_user.username}", callback_data=f"ban_reply_{message.from_user.id}_{message.from_user.username}_{message.chat.id}")]])
+            report_text = f"🛑 РЕПОРТ! 🛑\n\nПользователь: {message.from_user.username} c ID: {message.from_user.id}\nПожаловался на пользователя {message.reply_to_message.from_user.username} с ID: {message.reply_to_message.from_user.id}\n\nПричина: {text}"
+            for i in [1828269322,2021260772]:
+                try:
+                    await bot.send_message(chat_id=i, text=report_text, reply_markup=report_inline_keyboard)
+                except:
+                    await bot.send_message(text="🛑 Невозможно отправить репорт, т.к. у админа нет активного чата с ботом 🛑", chat_id=message.chat.id)
+        else:
             await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-        except Exception:
-            pass
-        await message.answer(text="🛑 Вы не можете отправить пустую жалобу! 🛑")
+            await bot.send_message(text="🛑 Ты неправильно отправил форму репорта! 🛑", chat_id=message.chat.id)
+    except:
+        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+        await bot.send_message(text="🛑 Ты неправильно отправил форму репорта! 🛑", chat_id=message.chat.id)
 
-async def ban(message, ban_time):
-    await bot.send_message(text=f'<blockquote>@{message.reply_to_message.from_user.username} </blockquote>\n🔒 {random.choice(["Холопа кинули в темницу","Нищета в заключении","Отправлен на каторгу","Отправлен на парашу","Уронил мыло"])} на {ban_time} мин !', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
+async def ban(banned_user_id, banned_username, chat_id, ban_time):
+    await bot.send_message(text=f'<blockquote>@{banned_username} </blockquote>\n🔒 {random.choice(["Холопа кинули в темницу","Нищета в заключении","Отправлен на каторгу","Отправлен на парашу","Уронил мыло"])} на {ban_time} мин !', chat_id=int(chat_id), parse_mode=ParseMode.HTML)
     now = datetime.datetime.now()
     ban_until = now + timedelta(minutes=ban_time)
     timestamp = int(ban_until.timestamp())
-    await bot.restrict_chat_member(chat_id=message.chat.id, user_id=message.reply_to_message.from_user.id, permissions=types.ChatPermissions(), until_date=timestamp)
+    await bot.restrict_chat_member(chat_id=int(chat_id), user_id=int(banned_user_id), permissions=types.ChatPermissions(), until_date=timestamp)
 
 async def unban(message):
     await bot.send_message(text=f'<blockquote>@{message.reply_to_message.from_user.username} </blockquote>\n🔓 {random.choice(["Разбанен", "Холоп свободен", "Нищета освобождена"])}', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
     await message.chat.restrict(user_id=message.reply_to_message.from_user.id, permissions=ChatPermissions(can_send_messages=True,can_send_audios=True,can_send_documents=True,can_send_photos=True,can_send_videos=True,can_send_video_notes=True,can_send_voice_notes=True,can_send_polls=True,can_send_other_messages=True,can_add_web_page_previews=True,can_change_info=False,can_invite_users=True,can_pin_messages=True))
 
+@dp.message(Form.waiting_for_text)
+async def process_ban_time(message: types.Message, state: FSMContext):
+    if str(message.text) != "Отмена ❌":
+        try:
+            ban_time = float(message.text)
+        except ValueError:
+            await message.answer(text="⚠️ Введи корректное число минут (например: 5), пробуй еще раз:")
+            return
+        user_data = await state.get_data()
+        await ban(user_data.get("banned_user_id"), user_data.get("banned_username"), user_data.get("chat_id"), ban_time)
+        await state.clear()
+        await bot.send_message(text=random.choice(["🔒 бб","🔒 Туда его","🔒 -1","🔒 Забанен","🔒 Уничтожен"]), reply_markup=ReplyKeyboardRemove(), chat_id=message.chat.id)
+    else:
+        await bot.send_message(text=random.choice(["❌ Откат рп","❌ Отменяю..","❌ Отменяю"]), reply_markup=ReplyKeyboardRemove(), chat_id=message.chat.id)
+        await state.clear()
+
+@dp.callback_query(lambda call: "ban_reply" in call.data)
+async def ban_reply(call: types.CallbackQuery, state: FSMContext):
+    banned_user_id, banned_username, chat_id = str(call.data).replace("ban_reply_","").split("_")
+    await state.update_data(banned_user_id=banned_user_id, banned_username=banned_username, chat_id=chat_id)
+    await state.set_state(Form.waiting_for_text)
+    await call.answer()
+    report_reply_keyboard = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[[KeyboardButton(text="Отмена ❌")]])
+    await call.message.answer("⏳ На сколько минут заблокировать пользователя? Введи только число:", reply_markup=report_reply_keyboard)
+
 @dp.message(Command("ban"))
-async def report_com(message: types.Message, command: CommandObject):
-    sender_status = await message.chat.get_member(message.from_user.id)
-    if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
-        await message.reply(text="❌ Отказано нищета")
-        return
-    await bot.delete_message(message.chat.id, message.message_id)
-    await ban(message=message, ban_time=float(str(command.args).split()[0]))
+async def ban_command(message: types.Message, command: CommandObject):
+    try:
+        sender_status = await message.chat.get_member(message.from_user.id)
+        if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
+            await message.reply(text="❌ Отказано нищета")
+        elif message.reply_to_message.from_user.username == "kabantos_bot":
+            await message.reply(text=random.choice(["❌ Ты че ахуела дура, против батьки пошла","❌ У нас свободный чат, не ной"]))
+        elif message.reply_to_message and len(str(command.args).split()) == 1:
+            await ban(message.reply_to_message.from_user.id, message.reply_to_message.from_user.username, message.chat.id, ban_time=float(str(command.args).split()[0]))
+        else:
+            await bot.send_message(text="🛑 Ты неправильно отправил форму бана! 🛑", chat_id=message.chat.id)
+        await bot.delete_message(message.chat.id, message.message_id)
+    except:
+        await bot.delete_message(message.chat.id, message.message_id)
+        await bot.send_message(text="🛑 Ты неправильно отправил форму бана! 🛑", chat_id=message.chat.id)
 
 @dp.message(Command("unban"))
-async def report_com(message: types.Message):
+async def unban_command(message: types.Message):
     sender_status = await message.chat.get_member(message.from_user.id)
     if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
         await message.reply(text="❌ Отказано нищета")
