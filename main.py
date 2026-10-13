@@ -101,7 +101,7 @@ async def criminal_command(message: types.Message):
 @dp.message(Command("report"))
 async def report_command(message: types.Message, command: CommandObject):
     try:
-        if message.reply_to_message and len(str(command.args).split()) == 1:
+        if message.reply_to_message:
             text = str(command.args).split()[0]
             await bot.delete_message(message.chat.id, message.message_id)
             report_inline_keyboard = InlineKeyboardMarkup(row_width=1, inline_keyboard=[[
