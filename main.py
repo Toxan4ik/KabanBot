@@ -38,7 +38,8 @@ async def info_command(message: types.Message):
             "/target --- Попасть в мишень\n"
             "/casino --- Играть в казино\n"
             "[reply на сообщение] /report [причина] --- Кинуть жб\n"
-            "/info --- Информация о командах\n\n"
+            "/info --- Информация о командах\n"
+            "[reply на сообщение] /mogged --- Моггнуть типа\n\n"
             "----АДМИН КОМАНДЫ----\n"
             "[reply на сообщение] /ban [время бана в МИН] --- Забанить\n"
             "[reply на сообщение] /unban --- Разбанить")
@@ -51,7 +52,8 @@ async def info_command(message: types.Message):
             "/target --- Попасть в мишень\n"
             "/casino --- Играть в казино\n"
             "[reply на сообщение] /report [причина] --- Кинуть жб\n"
-            "/info --- Информация о командах")
+            "/info --- Информация о командах\n"
+            "[reply на сообщение] /mogged --- Моггнуть типа")
 
 @dp.message(Command("dice"))
 async def dice_command(message: types.Message):
