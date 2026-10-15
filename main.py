@@ -2,6 +2,7 @@ import os
 os.system("pip install requests")
 os.system("pip install bs4")
 os.system("pip install aiogram")
+os.system("pip install pillow")
 import asyncio
 import random
 from datetime import timedelta
@@ -15,6 +16,8 @@ from aiogram.enums import ParseMode, ChatMemberStatus
 from aiogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
+from PIL import Image
+import io
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
@@ -181,6 +184,38 @@ async def unban_command(message: types.Message):
         return
     await bot.delete_message(message.chat.id, message.message_id)
     await unban(message=message)
+
+@dp.message(Command("mogged"))
+async def process_avatar(message: types.Message):
+    await bot.delete_message(message.chat.id, message.message_id)
+    if message.reply_to_message:
+        user_photos = await bot.get_user_profile_photos(user_id=message.reply_to_message.from_user.id, limit=1)
+        if not user_photos.photos:
+            await bot.send_message(chat_id=message.chat.id, text=f'<blockquote>@{message.reply_to_message.from_user.username} </blockquote>\n🛑 У типа не найдено аватарки, {random.choice(["ебать он чмо","хуйлан","уёбище","я лично его маму моггал"])}\nодного из вас я забаню', parse_mode=ParseMode.HTML)
+            random_user = random.choice([message.reply_to_message.from_user, message.from_user])
+            await ban(random_user.id, random_user.username, message.chat.id, 5)
+            return
+        photo_file = user_photos.photos[0][-1]
+        photo_buffer = io.BytesIO()
+        await bot.download(photo_file.file_id, destination=photo_buffer)
+        photo_buffer.seek(0)
+        base_image = Image.open(photo_buffer).convert("RGBA")
+        try:
+            overlay_image = Image.open("overlay.png").convert("RGBA")
+        except FileNotFoundError:
+            await bot.send_message(chat_id=message.chat.id, text="🛑 Ошибка: на сервере не найден файл")
+            return
+        overlay_image = overlay_image.resize(base_image.size)
+        combined_image = Image.alpha_composite(base_image, overlay_image)
+        output_buffer = io.BytesIO()
+        combined_image.save(output_buffer, format="PNG")
+        output_buffer.seek(0)
+        final_photo = types.BufferedInputFile(output_buffer.getvalue(), filename="new_avatar.png")
+        await bot.send_photo(chat_id=message.chat.id, photo=final_photo)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(dp.start_polling(bot))
         
 async def main():
     await dp.start_polling(bot)
