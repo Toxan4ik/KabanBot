@@ -3,7 +3,7 @@ os.system("pip install requests")
 os.system("pip install bs4")
 os.system("pip install aiogram")
 os.system("pip install pillow")
-os.system("yandex-music")
+os.system("yandex_music")
 import asyncio
 import random
 from datetime import timedelta
