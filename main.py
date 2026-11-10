@@ -3,35 +3,45 @@ os.system("pip install requests")
 os.system("pip install bs4")
 os.system("pip install aiogram")
 os.system("pip install pillow")
+os.system("yandex-music")
 import asyncio
 import random
 from datetime import timedelta
 import datetime
 import requests
+from yandex_music import Client
+import aiohttp
 from bs4 import BeautifulSoup
 
 from aiogram import Bot, Dispatcher, types, Router, F
 from aiogram.filters import Command, CommandObject
 from aiogram.enums import ParseMode, ChatMemberStatus
-from aiogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+from aiogram.types import ChatPermissions, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, BufferedInputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from PIL import Image
 import io
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
+yandex_token = os.getenv("YANDEX_TOKEN")
 dp = Dispatcher()
 router = Router()
+
+phrases_dice = ["Кубик упал и показал:", "Господь Рандом даровал тебе:", "Твоя удача сегодня измеряется числом:", "Поздравляю, ты выбил:", "Барабан судьбы остановился на:", "Великий Рандом изрек:", "Твой математический приговор:", "Кубик подкручен? Нет, просто выпало:", "Судьба-индейка выдала:", "Вот это поворот! Твое число:", "Кубик выдал тебе:", "Твой ролл такой:", "Магия чисел:", "Рандом на твоей стороне? Проверяем:", "Кости брошены, результат:", "Неплохо! Твое число:", "Судьба подкинула:", "Вот твой расклад:", "Кубик не подвел, выпало:", "Твой счастливый (или нет) номер:"]
+phrases_target = ["Дротик вонзился, результат:", "Мишень приняла удар:", "Твой бросок в яблочко? Смотрим:", "Дартс решил, что ты выбил:", "Рука тверда, а число такое:", "Меткость сегодня измеряется числом:", "Дротик нашел свою цель:", "Судьба подбросила дротик, выпало:", "Мишень сказала: держи", "Точность — твое второе имя? Число:", "Бычий глаз или мимо? Результат:", "Дартс-бог выдал тебе:", "Дротик просвистел и оставил:", "Твой снаряд попал в сектор:", "Мишень не спряталась, выпало:", "Бросок на точность, итог:", "Дартсмен из тебя так себе, но число:", "Дротик дрогнул, но выбил:", "Сектор поражен! Значение:", "Прицел сбился, а результат такой:"]
+phrases_casino = ["Барабан крутанулся и выдал:", "Рулетка остановилась на:", "Фортуна улыбнулась, выпало:", "Автомат выдал джекпот? Смотрим:", "Колесо фортуны замерло на:", "Ставка сыграла, твое число:", "Казино всегда выигрывает, но сегодня ты выбил:", "Рулетка не подвела, результат:", "Шарик упал в лунку:", "Крупье объявляет твое число:", "Три семерки? Не совсем, но выпало:", "Слот-машина выдала комбинацию:", "Фишка легла на:", "Джекпот сорван? Твое число:", "Колесо сделало оборот и показало:", "Фортуна сегодня щедра на:", "Рулетка прошептала твое число:", "Автомат завис на цифре:", "Ставь все! Выпало:", "Лас-Вегас нервно курит, а твой результат:"]
+phrases_bouling = ["Шар покатился и сбил:", "Страйк или нет? Твой результат:", "Дорожка решила, что ты выбил:", "Шар врезался в кегли, счет:", "Боулинг-бог выдал тебе:", "Твой бросок сбил кеглю с номером:", "Шар нашел свою цель, выпало:", "Кегли разлетелись, результат:", "Страйк? Проверяем, твое число:", "Дорожка навощена, а счет такой:", "Шар ушел в желоб? Нет, выбил:", "Боулинг-дорожка сказала: держи", "Точность броска измеряется числом:", "Кегля дрогнула, но результат:", "Твой страйк-бросок выдал:", "Шар катился-катился и выдал:", "Сплит или страйк? Смотрим:", "Дорожка приняла удар, счет:", "Боулинг-клуб аплодирует, твое число:", "Шар сбил кегли, результат на табло:"]
 
 class Form(StatesGroup):
     waiting_for_text = State()
 
 @dp.message(Command("info"))
 async def info_command(message: types.Message):
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     sender_status = await message.chat.get_member(message.from_user.id)
     if sender_status.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
-        await message.reply(text=
-            "Вот все команды, по которым вы можете обращаться ко мне:\n\n"
+        await bot.send_message(text=
+            f"<blockquote>👤 {message.from_user.username}</blockquote>\n"
             "/criminal --- Узнать свою статью УК РФ\n"
             "/dice --- Бросить кубик\n"
             "/bouling --- Боулинг\n"
@@ -39,13 +49,15 @@ async def info_command(message: types.Message):
             "/casino --- Играть в казино\n"
             "[reply на сообщение] /report [причина] --- Кинуть жб\n"
             "/info --- Информация о командах\n"
-            "[reply на сообщение] /mogged --- Моггнуть типа\n\n"
-            "----АДМИН КОМАНДЫ----\n"
+            "[reply на сообщение] /mogged --- Моггнуть типа\n"
+            "/music --- Лучшая рандом песня\n"
+            "[ссылка на yandex.music] --- скинуть трек\n\n"
+            "~ ~  АДМИН КОМАНДЫ  ~ ~\n"
             "[reply на сообщение] /ban [время бана в МИН] --- Забанить\n"
-            "[reply на сообщение] /unban --- Разбанить")
+            "[reply на сообщение] /unban --- Разбанить", chat_id=message.chat.id, parse_mode=ParseMode.HTML)
     else:
-        await message.reply(text=
-            "Вот все команды, по которым вы можете обращаться ко мне:\n\n"
+        await bot.send_message(text=
+            f"<blockquote>👤 {message.from_user.username}</blockquote>\n"
             "/criminal --- Узнать свою статью УК РФ\n"
             "/dice --- Бросить кубик\n"
             "/bouling --- Боулинг\n"
@@ -53,46 +65,37 @@ async def info_command(message: types.Message):
             "/casino --- Играть в казино\n"
             "[reply на сообщение] /report [причина] --- Кинуть жб\n"
             "/info --- Информация о командах\n"
-            "[reply на сообщение] /mogged --- Моггнуть типа")
+            "[reply на сообщение] /mogged --- Моггнуть типа\n"
+            "/music --- Лучшая рандом песня\n"
+            "[ссылка на yandex.music] --- скинуть трек", chat_id=message.chat.id, parse_mode=ParseMode.HTML)
 
 @dp.message(Command("dice"))
 async def dice_command(message: types.Message):
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    except Exception:
-        pass
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     dice_message = await bot.send_dice(chat_id=message.chat.id, emoji="🎲")
-    await dice_message.reply(text=f"{message.from_user.username}, вам выпало число: {dice_message.dice.value}")
+    await dice_message.reply(text=f"<blockquote>👤 {message.from_user.username}</blockquote>{random.choice(phrases_dice)} {dice_message.dice.value}", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("target"))
 async def target_command(message: types.Message):
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    except Exception:
-        pass
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     target_messages = await bot.send_dice(chat_id=message.chat.id, emoji="🎯")
-    await target_messages.reply(text=f"{message.from_user.username}, вы попали в число: {target_messages.dice.value}")
+    await target_messages.reply(text=f"<blockquote>👤 {message.from_user.username}</blockquote>{random.choice(phrases_target)} {target_messages.dice.value}", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("casino"))
 async def casino_command(message: types.Message):
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    except Exception:
-        pass
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     casino_message = await bot.send_dice(chat_id=message.chat.id, emoji="🎰")
-    await casino_message.reply(text=f"Ваш выигрыш {message.from_user.username}: {casino_message.dice.value}")
+    await casino_message.reply(text=f"<blockquote>👤 {message.from_user.username}</blockquote>{random.choice(phrases_casino)} {casino_message.dice.value}", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("bouling"))
 async def bouling_command(message: types.Message):
-    try:
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
-    except Exception:
-        pass
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     bouling_message = await bot.send_dice(message.chat.id, emoji="🎳")
-    await bouling_message.reply(text=f"Ваш выигрыш {message.from_user.username}: {bouling_message.dice.value}")
+    await bouling_message.reply(text=f"<blockquote>👤 {message.from_user.username}</blockquote>{random.choice(phrases_bouling)} {bouling_message.dice.value}", parse_mode=ParseMode.HTML)
 
 @dp.message(Command("criminal"))
 async def criminal_command(message: types.Message):
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     while True:
         url = "https://rulaws.ru/uk/?ysclid=mh0o16yda4718036120"
         req = requests.get(url)
@@ -100,15 +103,15 @@ async def criminal_command(message: types.Message):
         soup = BeautifulSoup(src, "html.parser")
         vibor = random.randint(143, len(soup.find("table").find_all("tr")))
         if "Глава" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "Раздел" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","") and "ЧАСТЬ ОБЩАЯ" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n","")  and "Утратила силу" not in str(soup.find("table").find_all("tr")[vibor].text).replace("\n",""):
-            await message.reply(text="👤 "+str(message.from_user.username)+" обвиняется по "+str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")+" 🔗")
+            await bot.send_message(text=f'<blockquote>👤 {message.from_user.username}</blockquote>обвиняется по {str(soup.find("table").find_all("tr")[vibor].text).replace("\n","").replace("Статья","статье ⚖️")} 🔗', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
             break
 
 @dp.message(Command("report"))
 async def report_command(message: types.Message, command: CommandObject):
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     try:
         if message.reply_to_message:
             text = str(command.args)
-            await bot.delete_message(message.chat.id, message.message_id)
             report_inline_keyboard = InlineKeyboardMarkup(row_width=1, inline_keyboard=[[
                 InlineKeyboardButton(text=f"Бан {message.reply_to_message.from_user.username}", callback_data=f"ban_reply_{message.reply_to_message.from_user.id}_{message.reply_to_message.from_user.username}_{message.chat.id}"),
                 InlineKeyboardButton(text=f"Бан {message.from_user.username}", callback_data=f"ban_reply_{message.from_user.id}_{message.from_user.username}_{message.chat.id}")]])
@@ -119,21 +122,19 @@ async def report_command(message: types.Message, command: CommandObject):
                 except:
                     await bot.send_message(text="🛑 Невозможно отправить репорт, т.к. у админа нет активного чата с ботом 🛑", chat_id=message.chat.id)
         else:
-            await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
             await bot.send_message(text="🛑 Ты неправильно отправил форму репорта! 🛑", chat_id=message.chat.id)
     except:
-        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
         await bot.send_message(text="🛑 Ты неправильно отправил форму репорта! 🛑", chat_id=message.chat.id)
 
 async def ban(banned_user_id, banned_username, chat_id, ban_time):
-    await bot.send_message(text=f'<blockquote>@{banned_username} </blockquote>\n🔒 {random.choice(["Холопа кинули в темницу","Нищета в заключении","Отправлен на каторгу","Отправлен на парашу","Уронил мыло"])} на {ban_time} мин !', chat_id=int(chat_id), parse_mode=ParseMode.HTML)
+    await bot.send_message(text=f'<blockquote>🧼 {banned_username} </blockquote>\n🔒 {random.choice(["Холопа кинули в темницу","Нищета в заключении","Отправлен на каторгу","Отправлен на парашу","Уронил мыло"])} на {ban_time} мин !', chat_id=int(chat_id), parse_mode=ParseMode.HTML)
     now = datetime.datetime.now()
     ban_until = now + timedelta(minutes=ban_time)
     timestamp = int(ban_until.timestamp())
     await bot.restrict_chat_member(chat_id=int(chat_id), user_id=int(banned_user_id), permissions=types.ChatPermissions(), until_date=timestamp)
 
 async def unban(message):
-    await bot.send_message(text=f'<blockquote>@{message.reply_to_message.from_user.username} </blockquote>\n🔓 {random.choice(["Разбанен", "Холоп свободен", "Нищета освобождена"])}', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
+    await bot.send_message(text=f'<blockquote>🫧 {message.reply_to_message.from_user.username} </blockquote>\n🔓 {random.choice(["Разбанен", "Холоп свободен", "Нищета освобождена"])}', chat_id=message.chat.id, parse_mode=ParseMode.HTML)
     await message.chat.restrict(user_id=message.reply_to_message.from_user.id, permissions=ChatPermissions(can_send_messages=True,can_send_audios=True,can_send_documents=True,can_send_photos=True,can_send_videos=True,can_send_video_notes=True,can_send_voice_notes=True,can_send_polls=True,can_send_other_messages=True,can_add_web_page_previews=True,can_change_info=False,can_invite_users=True,can_pin_messages=True))
 
 @dp.message(Form.waiting_for_text)
@@ -167,7 +168,7 @@ async def ban_command(message: types.Message, command: CommandObject):
         sender_status = await message.chat.get_member(message.from_user.id)
         if sender_status.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR]:
             await message.reply(text="❌ Отказано нищета")
-        elif message.reply_to_message.from_user.username == "kabantos_bot":
+        elif message.reply_to_message.from_user.username == "searchuserfsbbot": #@kabantos_bot
             await message.reply(text=random.choice(["❌ Ты че ахуела дура, против батьки пошла","❌ У нас свободный чат, не ной"]))
         elif message.reply_to_message and len(str(command.args).split()) == 1:
             await ban(message.reply_to_message.from_user.id, message.reply_to_message.from_user.username, message.chat.id, ban_time=float(str(command.args).split()[0]))
@@ -193,7 +194,7 @@ async def process_avatar(message: types.Message):
     if message.reply_to_message:
         user_photos = await bot.get_user_profile_photos(user_id=message.reply_to_message.from_user.id, limit=1)
         if not user_photos.photos:
-            await bot.send_message(chat_id=message.chat.id, text=f'<blockquote>@{message.reply_to_message.from_user.username} </blockquote>\n🛑 У типа не найдено аватарки, {random.choice(["ебать он чмо","хуйлан","уёбище","я лично его маму моггал"])}\nодного из вас я забаню', parse_mode=ParseMode.HTML)
+            await bot.send_message(chat_id=message.chat.id, text=f'<blockquote>🤡 {message.reply_to_message.from_user.username} </blockquote>\n🛑 У типа не найдено аватарки, {random.choice(["ебать он чмо","хуйлан","уёбище","я лично его маму моггал"])}\nодного из вас я забаню', parse_mode=ParseMode.HTML)
             random_user = random.choice([message.reply_to_message.from_user, message.from_user])
             await ban(random_user.id, random_user.username, message.chat.id, 5)
             return
@@ -214,6 +215,40 @@ async def process_avatar(message: types.Message):
         output_buffer.seek(0)
         final_photo = types.BufferedInputFile(output_buffer.getvalue(), filename="new_avatar.png")
         await bot.send_photo(chat_id=message.chat.id, photo=final_photo)
+
+async def send_music_from_yandex(track, message):
+    info = track.get_download_info(get_direct_links=True)
+    best = max(info, key=lambda i: i.bitrate_in_kbps or 0)
+    direct_url = best.direct_link
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(direct_url) as resp:
+            if resp.status != 200:
+                await message.answer("Не удалось скачать трек 😔")
+                return
+            audio_bytes = await resp.read()
+
+    filename = f"{', '.join(a.name for a in track.artists)} - {track.title}.mp3"
+    file = BufferedInputFile(audio_bytes, filename=filename)
+    await message.answer_audio(file,title=track.title,performer=", ".join(a.name for a in track.artists),duration=track.duration_ms // 1000 if track.duration_ms else None)
+
+@dp.message(Command("music"))
+async def music_yandex_command(message: types.Message):
+    await bot.delete_message(message.chat.id, message.message_id)
+    client = Client("y0__wgBEOe7wYEHGN74BiDIi-ywGIg-v8nJeWwiBrxh-GJy-VVK5QUD").init()
+    track = client.tracks(random.choice(client.users_likes_tracks().tracks)["id"])[0]
+    temporary_message = await bot.send_message(message.chat.id, text="Подбираю лучший трек... 🎵")
+    await send_music_from_yandex(track, message)
+    await bot.delete_message(message.chat.id, temporary_message.message_id)
+
+@dp.message(F.text.contains("https://music.yandex.ru"))
+async def music_yandex(message: types.Message):
+    track_id = str(message.text).split("track/")[-1].split("?")[0]
+    client = Client("y0__wgBEOe7wYEHGN74BiDIi-ywGIg-v8nJeWwiBrxh-GJy-VVK5QUD").init()
+    track = client.tracks(track_id)[0]
+    temporary_message = await message.reply(text="Получаю трек.. 🎶")
+    await send_music_from_yandex(track, message)
+    await bot.delete_message(message.chat.id, temporary_message.message_id)
 
 if __name__ == "__main__":
     import asyncio
